@@ -9,11 +9,9 @@ public class StaticData {
     protected final static String __NAME__ = "Sebekx";
     protected final static String __REGION__ = "euw" ;
 
-    protected final static Task task = Task.FreeToPlay ;
+    protected final static Task task = Task.ParseChat ;
 
     protected enum Task{
-        FreeToPlay,
-        CurrentMatch,
-        AnalyseRecentMatches,
+        ParseChat;
     }
 }

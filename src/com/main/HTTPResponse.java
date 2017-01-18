@@ -1,19 +1,15 @@
 package com.main;
 
 import com.Log.Logger;
-import com.api.calls.*;
-import com.datastructure.Champion;
-import com.datastructure.CurrentMatch;
-import com.datastructure.Game;
-import com.datastructure.Summoner;
+import com.apicalls.APICalls;
+import com.apicalls.ChatCall;
+import com.datastructure.TwitchUser;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Created by Thinh on 19.06.2016.
@@ -35,14 +31,8 @@ public class HTTPResponse {
         Logger.setLevel(Logger.Level.INFO);
 
         switch(StaticData.task){
-            case FreeToPlay:
-                freeToPlay(StaticData.__REGION__);
-                break;
-            case CurrentMatch:
-                currentMatch(StaticData.__NAME__,StaticData.__REGION__);
-                break;
-            case AnalyseRecentMatches:
-                analyseData(StaticData.__NAME__,StaticData.__REGION__);
+            case ParseChat:
+                startListening(StaticData.__REGION__);
                 break;
             default:
                 Logger.debug("Unresolved StaticData found: " + StaticData.task);
@@ -51,52 +41,15 @@ public class HTTPResponse {
 
     }
 
-    private static void freeToPlay(String $region){
+    private static void startListening(String $region){
 
         Logger.info("retrieve freeToPlay rotation this week...");
 
-        ICalls freeToPlayCall = new FreeToPlayCall($region);
-        Set<Champion> champs = CallExecutioner.parseFreeToPlay(freeToPlayCall);
+        APICalls chat_api = new ChatCall();
+        TwitchUser champs = CallExecutioner.parseUser(chat_api);
 
         //display champs in console
         Logger.info(champs.toString());
-    }
-
-    private static void currentMatch(String $name, String $region){
-
-        Logger.info("initializing Player " + $name +"(" + $region + ") ...");
-
-        ICalls summonerCall = new SummonerCall($name,$region) ;
-        Summoner player = CallExecutioner.parseSummoner(summonerCall) ;
-        ICalls currentMatchCall = new CurrentMatchCall("" + player.getID(), $region, "EUW1");
-
-        CurrentMatch cMatch = CallExecutioner.parseCurrentMatch(currentMatchCall) ;
-
-        StringBuilder buildRed = new StringBuilder();
-        StringBuilder buildBlue = new StringBuilder();
-
-        for(Summoner summ : cMatch.getSummoners()){
-            if(summ.getTeam().equals(CurrentMatch.GameSide.Red))
-                    buildRed.append(summ).append("("+summ.getChamp().toString()+")").append(", ");
-            else    buildBlue.append(summ).append("("+summ.getChamp().toString()+")").append(", ") ;
-        }
-
-        Logger.info("Team Blue: " + buildBlue.toString());
-        Logger.info("Team Red : " + buildRed.toString());
-
-    }
-
-    private static void analyseData(String $name,String $region){
-        Logger.info("analysing Player " + $name +"(" + $region + ") recent matches ...");
-
-        ICalls summonerCall = new SummonerCall($name,$region) ;
-        Summoner player = CallExecutioner.parseSummoner(summonerCall) ;
-
-        ICalls recent = new RecentGamesCall($region,player.getID()) ;
-        List<Game> games = CallExecutioner.parseRecentMatches(recent);
-
-
-
     }
 
 
