@@ -3,7 +3,9 @@ package com.main;
 import com.Log.Logger;
 import com.apicalls.APICalls;
 import com.apicalls.ChatCall;
+import com.apicalls.UserCall;
 import com.datastructure.TwitchUser;
+import org.jibble.pircbot.*;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -32,8 +34,10 @@ public class HTTPResponse {
 
         switch(StaticData.task){
             case ParseChat:
-                startListening(StaticData.__REGION__);
+                startListening();
                 break;
+            case GetUser:
+                startFetchUser(StaticData.__NAME__);
             default:
                 Logger.debug("Unresolved StaticData found: " + StaticData.task);
                 break;
@@ -41,23 +45,41 @@ public class HTTPResponse {
 
     }
 
-    private static void startListening(String $region){
+    private static void startListening(){
 
-        Logger.info("retrieve freeToPlay rotation this week...");
+        Logger.info("starting hook on twitch chat...");
 
         APICalls chat_api = new ChatCall();
-        TwitchUser champs = CallExecutioner.parseUser(chat_api);
+        CallExecutioner.hookStream(chat_api);
+        Logger.info("Connection successful" );
 
-        //display champs in console
-        Logger.info(champs.toString());
+    }
+
+    private static void startFetchUser(String $name){
+
+        Logger.info("fetching user data...");
+
+        APICalls chat_api = new UserCall($name);
+        TwitchUser user = CallExecutioner.parseUser(chat_api);
+        Logger.info("Connection successful");
+
     }
 
 
 
-    public static JSONObject GETRequest(String param) throws IOException{
-        URL url = new URL(param.toString());
+    public static JSONObject cURLRequest(String toConnect,String accepts) throws IOException{
+        URL url = new URL(toConnect);
         HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+        connection.setDoOutput(true);
+
+        connection.setRequestProperty("Accept", accepts);
+        connection.setRequestProperty("Client-ID", "qsqsbll6tdal0fmy0i60m5y23w3y6x");
+
         connection.setRequestMethod("GET");
+
+        connection.setDoInput(true);
+        connection.setDoOutput(false);
+
         connection.connect();
 
         // read the contents using an InputStreamReader
@@ -65,7 +87,6 @@ public class HTTPResponse {
         JSONObject profil = new JSONObject(HTTPResponse.convertStreamToString(stream));
 
         return profil ;
-
     }
 
     /**
