@@ -10,5 +10,5 @@ public class APIKey {
     protected static final String OAuth = "a7cc5zbe6gc7uj5uzz8p97zjkijy54"; //pewhtv
     //protected static final String OAuth = "8w8fmrps26qxkc449i5qd614l054l5"; //pewhtv
 
-    protected final static String __CHANNELNAME__ = "#lck1";
+    protected final static String __CHANNELNAME__ = "#hci_livestreaming";
 }
