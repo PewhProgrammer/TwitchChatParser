@@ -45,7 +45,7 @@ public class Domain {
         console.setFormatter(formatterTxt);
         log.addHandler(console);
 
-        log.setLevel(Level.FINER);
+        log.setLevel(Level.INFO);
 
 
 

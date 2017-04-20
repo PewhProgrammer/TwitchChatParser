@@ -1,5 +1,6 @@
 package com.main;
 
+import com.Log.Logger;
 import org.jibble.pircbot.*;
 
 import java.util.ArrayList;
@@ -47,16 +48,15 @@ public class PircBot extends org.jibble.pircbot.PircBot{
         curse.add("Ich mag dich");
     }
 
-    public void onMessage(String channel, String sender,
-                          String login, String hostname, String message) {
-        //sendMessage(channel,"@" + sender + " " +curse.get(r.nextInt(curse.size())));
-
-        if (message.equalsIgnoreCase("thinh")) {
-            String time = new java.util.Date().toString();
-            sendMessage(channel, sender + ": just wrote my name huiiii");
-        }
+    protected void onAction(String sender,
+                            String login,
+                            String hostname,
+                            String channel,
+                            String action){
+        String message = action;
 
         if(sender.equals("hci_livestreaming") && message.startsWith("!LivestreamingMeetsHCI")){
+            Logger.debug("Correct sender " + sender.toString());
             StringBuffer target = new StringBuffer(message);
             target.replace( 0 ,23 ,"");
             String[] Tokens = target.toString().split(";");
@@ -64,16 +64,49 @@ public class PircBot extends org.jibble.pircbot.PircBot{
             for(String s:Tokens){
                 if(s.equals("NexXw5")) {
                     tokenCount++;
-                    sendMessage(channel, sender + ": Ping! I found my token!!");
+                    Logger.debug("Increased token count to "+tokenCount+"!");
+                    //sendMessage(channel,": Ping! I found my token!!");
+                    continue;
+                }
+            }
+        }
+    }
+
+    public void onPrivateMessage(String sender, String login, String hostname, String message){
+        Logger.debug(message);
+    }
+
+    public void onMessage(String channel, String sender,
+                          String login, String hostname, String message) {
+        //sendMessage(channel,"@" + sender + " " +curse.get(r.nextInt(curse.size())));
+
+        if (message.equalsIgnoreCase("thinh")) {
+            sendMessage(channel, sender + ": just wrote my name huiiii");
+        }
+
+        System.out.println(sender.toString());
+        if(sender.equals("hci_livestreaming") && message.startsWith("!LivestreamingMeetsHCI")){
+            Logger.debug("Correct sender " + sender.toString());
+            StringBuffer target = new StringBuffer(message);
+            target.replace( 0 ,23 ,"");
+            String[] Tokens = target.toString().split(";");
+            //chatConnectable.send(ChatSendMethod.of(String.format("Ping! %d tokens detected from %s",Tokens.length,event.data.userName)));
+            for(String s:Tokens){
+                if(s.equals("NexXw5")) {
+                    tokenCount++;
+                    //sendMessage(channel,": Ping! I found my token!!");
                     continue;
                 }
             }
         }
 
         if(sender.equals("pewhtv")){
-            if(message.startsWith("!print"))
-            sendMessage(channel, String.format("@" + sender + ": Ping! I've counted %d occurences on twitch!",tokenCount));
+            if(message.startsWith("!print")) {
+                Logger.debug("Print command received!");
+                sendMessage(channel, String.format("@" + sender + ": Ping! I've counted %d occurences on twitch! Kappa", tokenCount));
+            }
             if(message.startsWith("!shutdown")){
+                Logger.debug("Shutdown command received!");
                 sendMessage(channel, "Ping! I'm going offline!!");
                 System.exit(1);
             }
@@ -84,6 +117,6 @@ public class PircBot extends org.jibble.pircbot.PircBot{
                           String sender,
                           String login,
                           String hostname){
-        if(!sender.equals("pewhbot")) sendMessage(channel,"@" + sender + " Hello World! Ich bin bereit zum Parsen!");
+        if(sender.equals("pewhbot")) sendMessage(channel,"Hello World! Ich bin bereit zum Parsen!");
     }
 }
